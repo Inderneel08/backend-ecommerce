@@ -1,24 +1,34 @@
-package com.example.backend_ecommerce.Controllers;
+package com.example.backend_ecommerce.ServiceLayer;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
-import com.example.backend_ecommerce.ServiceLayer.MyUserDetailsService;
-
-@RestController
-public class RegistrationController {
-
-    @Autowired
-    private MyUserDetailsService myUserDetailsService;
+@Service
+public class MyUserDetailsService implements UserDetailsService{
     
-    public ResponseEntity<?> registerUser(@RequestBody Map<String,Object> request)
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'loadUserByUsername'");
+    }
+
+    public boolean createUser(@RequestBody Map<String,Object> body)
     {
-        System.out.println(request);
+        System.out.println(body);
+
+        String email = (String) body.get("email");
+
+        String name = (String) body.get("name");
+
+        String password = (String) body.get("password");
+
         
-        return(ResponseEntity.ok().build());        
+
+        return(true);
     }
 }
