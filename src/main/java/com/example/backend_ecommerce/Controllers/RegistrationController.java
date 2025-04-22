@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,11 +15,11 @@ public class RegistrationController {
 
     @Autowired
     private MyUserDetailsService myUserDetailsService;
-    
-    public ResponseEntity<?> registerUser(@RequestBody Map<String,Object> request)
-    {
+
+    @PostMapping("/api/auth/register")
+    public ResponseEntity<?> registerUser(@RequestBody Map<String, Object> request) {
         System.out.println(request);
-        
-        return(ResponseEntity.ok().build());        
+
+        return (ResponseEntity.ok().build());
     }
 }
