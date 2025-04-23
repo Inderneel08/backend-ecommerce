@@ -26,11 +26,14 @@ public class RegistrationController {
         String email = (String) request.get("email");
 
         UserDetails userDetails = myUserDetailsService.loadUserByUsername(email);
-        
-        if(userDetails.getPassword().equals(request.get("password"))){
-            
+
+        if(userDetails!=null){
+            return(ResponseEntity.badRequest().body("User already exists!"));
+        }
+        else{
+            myUserDetailsService.createUser(request);
         }
 
-        return (ResponseEntity.ok().build());
+        return (ResponseEntity.ok().body("User created successfully!"));
     }
 }
