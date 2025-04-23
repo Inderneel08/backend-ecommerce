@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +57,8 @@ public class JwtTokenServiceLayer {
         token.setToken_value(hashedToken);
 
         token.setUser_id(id);
+
+        token.setCreated_at(Timestamp.valueOf(LocalDateTime.now()));
 
         tokenRepository.save(token);
 
