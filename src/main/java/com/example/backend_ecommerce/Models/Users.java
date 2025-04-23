@@ -2,6 +2,12 @@ package com.example.backend_ecommerce.Models;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Collections;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +22,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class Users {
+public class Users implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,4 +63,16 @@ public class Users {
 
     @Column(name = "phone")
     private String phone;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        String roleName = (this.role == 0) ? "ROLE_USER" : "ROLE_ADMIN";
+        return Collections.singletonList(new SimpleGrantedAuthority(roleName));
+    }
+
+
+    @Override
+    public String getUsername() {
+        return(this.email);
+    }
 }
