@@ -28,15 +28,17 @@ public class MyUserDetailsService implements UserDetailsService{
 
     public boolean createUser(@RequestBody Map<String,Object> body)
     {
-        System.out.println(body);
+        Users users = new Users();
 
-        String email = (String) body.get("email");
+        users.setEmail((String) body.get("email"));
 
-        String name = (String) body.get("name");
+        users.setPassword((String) body.get("password"));
 
-        String password = (String) body.get("password");
+        users.setName((String) body.get("name"));
 
-        
+        users.setRole(0);
+
+        userRepository.save(users);
 
         return(true);
     }
