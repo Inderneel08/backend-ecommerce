@@ -4,30 +4,48 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.backend_ecommerce.Models.Users;
+import com.example.backend_ecommerce.ServiceLayer.JwtTokenServiceLayer;
+import com.example.backend_ecommerce.ServiceLayer.MyUserDetailsService;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 public class LoginController {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private MyUserDetailsService myUserDetailsService;
+
+    @Autowired
+    private JwtTokenServiceLayer jwtTokenServiceLayer;
     
     @PostMapping("/api/auth/login")
-    public ResponseEntity<?> login(@RequestBody Map<String,Object> request)
+    public ResponseEntity<?> login(@RequestBody Map<String,Object> request,HttpServletResponse response)
     {
-        System.out.println(request);
+        Users users = (Users) myUserDetailsService.loadUserByUsername((String) request.get("email"));
 
-        Authentication authentication = authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(request.get("email"), request.get("password"))
-                    );
+        if(users==null){
+            return(ResponseEntity.badRequest().body("Email Id or Password incorrect!"));
+        }
+        
+        String token = jwtTokenServiceLayer.createToken(users.getId());
 
-        System.out.println(authentication);
+        Cookie cookie = new Cookie("token", token);
 
-        return(null);
+        cookie.setHttpOnly(true);
+
+        cookie.setSecure(false); // if using HTTPS
+
+        cookie.setMaxAge(3600); // 1 hour
+
+        response.addCookie(cookie);
+
+        return(ResponseEntity.ok().build());
     }
 }
