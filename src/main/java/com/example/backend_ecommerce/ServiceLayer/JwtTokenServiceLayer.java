@@ -7,18 +7,26 @@ import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.backend_ecommerce.Models.TokenTable;
+import com.example.backend_ecommerce.Models.Users;
 import com.example.backend_ecommerce.RepositoryLayer.TokenRepository;
+import com.example.backend_ecommerce.RepositoryLayer.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class JwtTokenServiceLayer {
     
     @Autowired
     private TokenRepository tokenRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public String generateRandomString(int length) {
         SecureRandom random = new SecureRandom();
@@ -64,4 +72,33 @@ public class JwtTokenServiceLayer {
 
         return(generatedToken);
     }
+
+    public String findToken(String token)
+    {
+        String hashedToken = sha256(token);
+
+        return(hashedToken);
+    }
+
+    @Transactional
+    public boolean deleteToken(String hashedToken)
+    {
+        try {
+            tokenRepository.deleteToken(hashedToken);            
+        } catch (Exception e) {
+            return(false);
+        }
+
+        return(true);
+    }
+
+    public String findEmailByToken(String hashedToken)
+    {
+        TokenTable tokenTable = tokenRepository.findByTokenValue(hashedToken);
+
+        Optional<Users> users = userRepository.findById(tokenTable.getUser_id());
+
+        return(users.get().getEmail());
+    }
+
 }
