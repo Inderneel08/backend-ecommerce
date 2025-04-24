@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.example.backend_ecommerce.Models.Users;
 import com.example.backend_ecommerce.RepositoryLayer.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class MyUserDetailsService implements UserDetailsService{
 
@@ -43,4 +45,17 @@ public class MyUserDetailsService implements UserDetailsService{
 
         return(true);
     }
+
+    @Transactional
+    public boolean updatePassword(BigInteger userId,String password)
+    {
+        try {
+            userRepository.savePassword(userId, password);
+        } catch (Exception e) {
+            return(false);
+        }
+
+        return(true);
+    }
+
 }
