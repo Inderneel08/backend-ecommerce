@@ -46,11 +46,6 @@ public class LoginController {
         return (ResponseEntity.ok().build());
     }
 
-    // {
-    //     "email":"test123@yopmail.com",
-    //     "password":"5a5d3e1115b0bae8e32a610d20390f818a5ec81c90f6cf8c1a0be1b3c626b975"
-    //   }
-
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/api/auth/logout")
     public ResponseEntity<?> logout(HttpServletRequest request,HttpServletResponse response)
