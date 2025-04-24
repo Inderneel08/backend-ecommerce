@@ -17,4 +17,8 @@ public interface UserRepository extends JpaRepository<Users,BigInteger>{
     @Modifying
     @Query(value = "UPDATE users set users.password = :password where users.id = :userId",nativeQuery = true)
     public void savePassword(@Param("userId") BigInteger userId,@Param("password") String password);
+
+    @Modifying
+    @Query(value = "UPDATE users set users.phone = :phone, users.state = :state , users.address = :address, users.zip = :zip where users.id = :userId ",nativeQuery = true)
+    public void updateProfile(@Param("userId") BigInteger userId,@Param("phone") String phone,@Param("address") String address,@Param("state") BigInteger state,@Param("zip") String zip);
 }
