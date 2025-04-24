@@ -58,4 +58,20 @@ public class MyUserDetailsService implements UserDetailsService{
         return(true);
     }
 
+    @Transactional
+    public boolean updateProfile(BigInteger userid,@RequestBody Map<String,Object> requestbody)
+    {
+        String phone = (String) requestbody.get("phone");
+
+        String address = (String) requestbody.get("address");
+
+        BigInteger state = (BigInteger.valueOf(Long.valueOf((String) requestbody.get("state"))));
+
+        String zip = (String) requestbody.get("zip");
+
+        userRepository.updateProfile(userid, phone, address, state, zip);
+
+        return(true);
+    }
+
 }
