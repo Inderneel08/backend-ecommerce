@@ -33,7 +33,7 @@ public class UserController {
         return(ResponseEntity.ok().body("Password updated successfully!"));
     }
 
-    
+
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping("/api/auth/findProfileInfo")
     public ResponseEntity<?> getProfileInfo()
@@ -44,4 +44,18 @@ public class UserController {
 
         return(ResponseEntity.ok().body(users));
     }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PostMapping("/api/auth/updateProfile")
+    public ResponseEntity<?> updateProfile(@RequestBody Map<String,Object> requestBody)
+    {        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Users users = (Users) authentication.getPrincipal();
+
+        myUserDetailsService.updateProfile(users.getId(),requestBody);
+
+        return(ResponseEntity.ok().body("Profile updated successfully!"));
+    }
+
 }
