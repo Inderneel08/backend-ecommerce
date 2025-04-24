@@ -1,19 +1,34 @@
 package com.example.backend_ecommerce.Controllers;
 
 import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.backend_ecommerce.Models.Users;
+import com.example.backend_ecommerce.ServiceLayer.MyUserDetailsService;
 
 @RestController
 public class UserController {
+
+    @Autowired
+    private MyUserDetailsService myUserDetailsService;
     
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/api/auth/updatePassword")
     public ResponseEntity<?> updatePassword(@RequestBody Map<String,Object> requestBody){
-        return(ResponseEntity.ok().build());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Users users = (Users) authentication.getPrincipal();
+
+        if(!myUserDetailsService.updatePassword(users.getId(), (String) requestBody.get("password"))){
+            return(ResponseEntity.badRequest().body("Password updation failed!"));
+        }
+
+        return(ResponseEntity.ok().body("Password updated successfully!"));
     }
 }
