@@ -15,23 +15,25 @@ import com.example.backend_ecommerce.Components.JwtFilter;
 @EnableMethodSecurity
 public class Security {
 
-    @Autowired
-    private JwtFilter jwtFilter;
+        @Autowired
+        private JwtFilter jwtFilter;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/getStates", "/api/products",
-                                "/api/products/category", "/api/getAll/categories")
-                        .permitAll()
-                        .anyRequest().authenticated())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .formLogin(form -> form.disable());
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+                httpSecurity.csrf(csrf -> csrf.disable())
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/api/auth/login", "/api/auth/register",
+                                                                "/api/getStates", "/api/products",
+                                                                "/api/products/category", "/api/getAll/categories")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .formLogin(form -> form.disable());
 
-        httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return (httpSecurity.build());
-    }
+                return (httpSecurity.build());
+        }
 
 }
