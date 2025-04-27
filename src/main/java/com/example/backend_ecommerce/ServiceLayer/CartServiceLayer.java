@@ -50,9 +50,9 @@ public class CartServiceLayer {
             Cart cart = cartRepository.getCartByProductIdUserId(userId,product_id);
 
             if(cart.getCount()>1){
-                
+                cartRepository.decreaseCartCount(cart.getId(),cart.getCount()-1);
             }else{
-
+                cartRepository.deleteById(cart.getId());
             }
         } catch (Exception e) {
             return (false);

@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CartDTO {
-    private BigInteger id;
+    private BigInteger product_id;
 
     private String title;
 
@@ -18,4 +18,6 @@ public class CartDTO {
     private BigDecimal price;
 
     private Integer count;
+
+    private BigInteger cartId;
 }
