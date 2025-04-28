@@ -37,7 +37,7 @@ public class PaymentServiceLayer {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
-    public boolean createOrder(@RequestBody Map<String, Object> requestBody) {
+    public Orders createOrder(@RequestBody Map<String, Object> requestBody) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -60,9 +60,6 @@ public class PaymentServiceLayer {
         String formattedAmount = String.format("%.2f", subtotal);
 
         if (users != null) {
-            // List<CartDTO> cartItems = null;
-            // cartItems = cartServiceLayer.getCartItems(users.getId());
-
             customerDetails.setCustomerId("cashfree_".concat(users.getId().toString()));
 
             customerDetails.setCustomerEmail(users.getEmail());
@@ -80,10 +77,10 @@ public class PaymentServiceLayer {
 
         request.setCustomerDetails(customerDetails);
 
+        Orders orders = new Orders();
+
         try {
             ApiResponse<OrderEntity> result = cashfree.PGCreateOrder(xApiVersion, request, null, null, null);
-
-            Orders orders = new Orders();
 
             orders.setCf_order_id(result.getData().getCfOrderId());
 
@@ -129,9 +126,9 @@ public class PaymentServiceLayer {
         } catch (Exception e) {
             e.printStackTrace();
 
-            return (false);
+            return (null);
         }
 
-        return (true);
+        return (orders);
     }
 }
