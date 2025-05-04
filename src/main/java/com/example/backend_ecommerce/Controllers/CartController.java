@@ -31,7 +31,11 @@ public class CartController {
     public ResponseEntity<?> getCartInfo() {
         Integer cartCount = cartServiceLayer.cartCount();
 
-        return (ResponseEntity.ok().body(cartCount));
+        HashMap<String,Object> hashMap = new HashMap<>();
+
+        hashMap.put("cartCount",cartCount);
+
+        return (ResponseEntity.ok().body(hashMap));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -53,12 +57,8 @@ public class CartController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/api/auth/removeFromCart")
     public ResponseEntity<?> removeFromCart(@RequestBody Map<String,Object> requestBody){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        Users users = (Users) authentication.getPrincipal();
-
         try {
-            cartServiceLayer.removeFromCart(users.getId(),requestBody);
+            cartServiceLayer.removeFromCart(requestBody);
         } catch (Exception e) {
             return(ResponseEntity.badRequest().body("Some error while deleting item from the cart!"));
         }
@@ -68,8 +68,15 @@ public class CartController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/api/auth/addToCart")
-    public ResponseEntity<?> addToCart()
+    public ResponseEntity<?> addToCart(@RequestBody Map<String,Object> requestBody)
     {
+        try {
+            cartServiceLayer.addToCart(requestBody);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
         return (ResponseEntity.ok().build());
     }
 

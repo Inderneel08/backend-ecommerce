@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.example.backend_ecommerce.Models.ProductInfoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +21,31 @@ public class ProductServiceLayer {
     public List<Products> findProducts() {
         List<Products> products = new ArrayList<>(productRepository.findAll());
 
+        for(Products product : products){
+            product.setImage("http://localhost:8080/".concat(product.getImage()));
+        }
+
         return (products);
     }
 
-    public List<Products> findProductsById(BigInteger id) {
-        List<Products> products = new ArrayList<>(productRepository.findById(id)
-                .map(Collections::singletonList).orElse(Collections.emptyList()));
+    public List<Products> getProductsCategory(Integer category)
+    {
+        List<Products> products = productRepository.findByCategory(category);
+
+        for(Products product : products){
+            product.setImage("http://localhost:8080/".concat(product.getImage()));
+        }
+
+        return(products);
+    }
+
+
+    public List<ProductInfoDTO> findProductsById(BigInteger id) {
+        List<ProductInfoDTO> products = productRepository.getProductInfo(id);
+
+        for(ProductInfoDTO product : products){
+            product.setImage("http://localhost:8080/".concat(product.getImage()));
+        }
 
         return (products);
     }

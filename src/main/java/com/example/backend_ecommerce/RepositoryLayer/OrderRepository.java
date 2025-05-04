@@ -12,8 +12,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface OrderRepository extends JpaRepository<Orders,BigInteger>{
 
-    @Query(value = "SELECT * FROM orders where orders.current_status = :current_status",nativeQuery = true)
-    public List<Orders> fetchOrdersByStatusAndTableId(@Param("current_status") Integer current_status);
+    @Query(value = "SELECT * FROM orders where orders.table_id = :userId orders.current_status = :current_status",nativeQuery = true)
+    public List<Orders> fetchOrdersByStatusAndTableId(@Param("userId") BigInteger userId ,@Param("current_status") Integer current_status);
 
     @Modifying
     @Query(value = "UPDATE orders set orders.current_status = :status where orders.id = :order_id",nativeQuery = true)

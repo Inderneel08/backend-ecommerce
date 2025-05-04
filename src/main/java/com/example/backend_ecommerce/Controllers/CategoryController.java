@@ -7,15 +7,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend_ecommerce.ServiceLayer.CategoryServiceLayer;
 
+import java.util.HashMap;
+
 @RestController
 public class CategoryController {
 
     @Autowired
     private CategoryServiceLayer categoryServiceLayer;
 
-    @GetMapping("/api/getAll/categories")
+    @GetMapping("/api/auth/getAll/categories")
     public ResponseEntity<?> getAllCategories() {
-        return(ResponseEntity.ok().body(categoryServiceLayer.getAllCategories()));
+        HashMap<String,Object> hashMap = new HashMap<>();
+
+        hashMap.put("categories",categoryServiceLayer.getAllCategories());
+
+        return(ResponseEntity.ok().body(hashMap));
     }
 
 }

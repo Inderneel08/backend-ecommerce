@@ -25,4 +25,8 @@ public interface CartRepository extends JpaRepository<Cart, BigInteger> {
     @Modifying
     @Query(value = "UPDATE cart set cart.count = :count where cart.id = :id",nativeQuery = true)
     void decreaseCartCount(@Param("id") BigInteger id,@Param("count") Integer count);
+
+    @Modifying
+    @Query(value = "UPDATE cart set cart.count = :count where cart.id = :id",nativeQuery = true)
+    void increaseCartCount(@Param("id") BigInteger id,@Param("count") Integer count);
 }

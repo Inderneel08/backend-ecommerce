@@ -53,12 +53,15 @@ public class CartServiceLayer {
     }
 
     @Transactional
-    public boolean removeFromCart(BigInteger userId, @RequestBody Map<String, Object> requestBody) {
+    public boolean removeFromCart(@RequestBody Map<String, Object> requestBody) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Users users = (Users) authentication.getPrincipal();
 
         try {
             BigInteger product_id = (BigInteger) requestBody.get("id");
 
-            Cart cart = cartRepository.getCartByProductIdUserId(userId,product_id);
+            Cart cart = cartRepository.getCartByProductIdUserId(users.getId(),product_id);
 
             if(cart.getCount()>1){
                 cartRepository.decreaseCartCount(cart.getId(),cart.getCount()-1);
@@ -66,10 +69,48 @@ public class CartServiceLayer {
                 cartRepository.deleteById(cart.getId());
             }
         } catch (Exception e) {
+            e.printStackTrace();
+
             return (false);
         }
 
         return (true);
+    }
+
+
+    @Transactional
+    public boolean addToCart(@RequestBody Map<String,Object> requestBody)
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Users users = (Users) authentication.getPrincipal();
+
+        BigInteger product_id = (BigInteger) requestBody.get("id");
+
+        Cart cart = cartRepository.getCartByProductIdUserId(users.getId(),product_id);
+
+        try{
+            if(cart!=null){
+                cartRepository.increaseCartCount(cart.getId(),cart.getCount()+1);
+            }
+            else{
+                cart = new Cart();
+
+                cart.setProduct_id(product_id);
+
+                cart.setCount(1);
+
+                cart.setUser_id(users.getId());
+
+                cartRepository.save(cart);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return(false);
+        }
+
+        return(true);
     }
 
 }

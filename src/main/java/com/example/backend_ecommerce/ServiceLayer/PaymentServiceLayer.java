@@ -195,11 +195,10 @@ public class PaymentServiceLayer {
 
         Cashfree cashfree = new Cashfree();
 
-        List<Orders> orders = orderRepository.fetchOrdersByStatusAndTableId(0);
+        List<Orders> orders = orderRepository.fetchOrdersByStatusAndTableId(users.getId(),0);
 
         try {
             for(Orders order: orders){
-                System.out.println(order.getOrder_id());
                 ApiResponse<List<PaymentEntity>> result = cashfree.PGOrderFetchPayments(this.xApiVersion,order.getOrder_id(),null,null,null);
 
                 List<PaymentEntity> paymentEntity = result.getData();

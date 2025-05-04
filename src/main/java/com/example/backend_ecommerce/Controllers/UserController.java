@@ -22,11 +22,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/api/auth/updatePassword")
     public ResponseEntity<?> updatePassword(@RequestBody Map<String,Object> requestBody){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        Users users = (Users) authentication.getPrincipal();
-
-        if(!myUserDetailsService.updatePassword(users.getId(), (String) requestBody.get("password"))){
+        if(!myUserDetailsService.updatePassword((String) requestBody.get("password"))){
             return(ResponseEntity.badRequest().body("Password updation failed!"));
         }
 
@@ -48,12 +44,8 @@ public class UserController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/api/auth/updateProfile")
     public ResponseEntity<?> updateProfile(@RequestBody Map<String,Object> requestBody)
-    {        
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        Users users = (Users) authentication.getPrincipal();
-
-        myUserDetailsService.updateProfile(users.getId(),requestBody);
+    {
+        myUserDetailsService.updateProfile(requestBody);
 
         return(ResponseEntity.ok().body("Profile updated successfully!"));
     }

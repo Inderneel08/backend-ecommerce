@@ -1,9 +1,11 @@
 package com.example.backend_ecommerce.Controllers;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +15,8 @@ import com.example.backend_ecommerce.ServiceLayer.MyUserDetailsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import static org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json;
 
 @RestController
 public class LoginController {
@@ -61,5 +65,17 @@ public class LoginController {
 
         return(ResponseEntity.ok().body("Logout successfull!"));
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/api/auth/check")
+    public ResponseEntity<?> checkUser()
+    {
+        HashMap<String,Object> hashMap = new HashMap<>();
+
+        hashMap.put("message","You are authenticated");
+
+        return(ResponseEntity.ok().body(hashMap));
+    }
+
 
 }

@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -47,10 +49,14 @@ public class MyUserDetailsService implements UserDetailsService{
     }
 
     @Transactional
-    public boolean updatePassword(BigInteger userId,String password)
+    public boolean updatePassword(String password)
     {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Users users = (Users) authentication.getPrincipal();
+
         try {
-            userRepository.savePassword(userId, password);
+            userRepository.savePassword(users.getId(), password);
         } catch (Exception e) {
             return(false);
         }
@@ -59,8 +65,12 @@ public class MyUserDetailsService implements UserDetailsService{
     }
 
     @Transactional
-    public boolean updateProfile(BigInteger userid,@RequestBody Map<String,Object> requestbody)
+    public boolean updateProfile(@RequestBody Map<String,Object> requestbody)
     {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Users users = (Users) authentication.getPrincipal();
+
         String phone = (String) requestbody.get("phone");
 
         String address = (String) requestbody.get("address");
@@ -69,7 +79,7 @@ public class MyUserDetailsService implements UserDetailsService{
 
         String zip = (String) requestbody.get("zip");
 
-        userRepository.updateProfile(userid, phone, address, state, zip);
+        userRepository.updateProfile(users.getId(), phone, address, state, zip);
 
         return(true);
     }
