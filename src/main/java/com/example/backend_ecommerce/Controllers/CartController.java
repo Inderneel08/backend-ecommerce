@@ -29,11 +29,7 @@ public class CartController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/api/auth/getCartInfo")
     public ResponseEntity<?> getCartInfo() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        Users users = (Users) authentication.getPrincipal();
-
-        Integer cartCount = cartServiceLayer.cartCount(users.getId());
+        Integer cartCount = cartServiceLayer.cartCount();
 
         return (ResponseEntity.ok().body(cartCount));
     }
@@ -41,15 +37,11 @@ public class CartController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/api/auth/getCartItems")
     public ResponseEntity<?> getCartItems() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        Users users = (Users) authentication.getPrincipal();
-
-        List<CartDTO> cartDTOs = cartServiceLayer.getCartItems(users.getId());
-
-        HashMap<String, Object> hashMap = new HashMap<>();
+        List<CartDTO> cartDTOs = cartServiceLayer.getCartItems();
 
         BigDecimal totalCost = cartServiceLayer.computeTotalCost(cartDTOs);
+
+        HashMap<String, Object> hashMap = new HashMap<>();
 
         hashMap.put("cartItems", cartDTOs);
 
@@ -72,6 +64,13 @@ public class CartController {
         }
 
         return(ResponseEntity.ok().body("Item successfully removed from cart!"));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/api/auth/addToCart")
+    public ResponseEntity<?> addToCart()
+    {
+        return (ResponseEntity.ok().build());
     }
 
 }

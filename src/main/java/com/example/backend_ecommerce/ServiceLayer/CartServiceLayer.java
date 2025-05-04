@@ -5,7 +5,10 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
+import com.example.backend_ecommerce.Models.Users;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -21,12 +24,20 @@ public class CartServiceLayer {
     @Autowired
     private CartRepository cartRepository;
 
-    public Integer cartCount(BigInteger userId) {
-        return (cartRepository.countCartItems(userId));
+    public Integer cartCount() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Users users = (Users) authentication.getPrincipal();
+
+        return (cartRepository.countCartItems(users.getId()));
     }
 
-    public List<CartDTO> getCartItems(BigInteger userId) {
-        return (cartRepository.getCartItems(userId));
+    public List<CartDTO> getCartItems() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Users users = (Users) authentication.getPrincipal();
+
+        return (cartRepository.getCartItems(users.getId()));
     }
 
     public BigDecimal computeTotalCost(List<CartDTO> cartDTOs) {

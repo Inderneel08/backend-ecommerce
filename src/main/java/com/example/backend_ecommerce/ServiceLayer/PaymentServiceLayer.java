@@ -115,7 +115,7 @@ public class PaymentServiceLayer {
             orderRepository.save(orders);
 
             if (userType == 0) {
-                List<CartDTO> cartDTOs = cartServiceLayer.getCartItems(users.getId());
+                List<CartDTO> cartDTOs = cartServiceLayer.getCartItems();
 
                 for (CartDTO cartDTO : cartDTOs) {
                     OrderItems orderItems = new OrderItems();
