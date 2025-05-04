@@ -1,15 +1,22 @@
 package com.example.backend_ecommerce.ServiceLayer;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.cashfree.model.PaymentEntity;
+import com.example.backend_ecommerce.Models.*;
+import com.example.backend_ecommerce.RepositoryLayer.AnonymusRepository;
+import com.example.backend_ecommerce.RepositoryLayer.CartRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -18,10 +25,6 @@ import com.cashfree.Cashfree;
 import com.cashfree.model.CreateOrderRequest;
 import com.cashfree.model.CustomerDetails;
 import com.cashfree.model.OrderEntity;
-import com.example.backend_ecommerce.Models.CartDTO;
-import com.example.backend_ecommerce.Models.OrderItems;
-import com.example.backend_ecommerce.Models.Orders;
-import com.example.backend_ecommerce.Models.Users;
 import com.example.backend_ecommerce.RepositoryLayer.OrderItemRepository;
 import com.example.backend_ecommerce.RepositoryLayer.OrderRepository;
 
@@ -32,10 +35,21 @@ public class PaymentServiceLayer {
     private CartServiceLayer cartServiceLayer;
 
     @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
     private OrderItemRepository orderItemRepository;
+
+    @Autowired
+    private AnonymusRepository anonymusRepository;
+
+    @Autowired
+    private MyUserDetailsService myUserDetailsService;
+
+    private final String xApiVersion = "2023-08-01";
 
     public Orders createOrder(@RequestBody Map<String, Object> requestBody) {
 
@@ -49,8 +63,6 @@ public class PaymentServiceLayer {
 
         Cashfree cashfree = new Cashfree();
 
-        String xApiVersion = "2023-08-01";
-
         Integer userType = 0;
 
         CustomerDetails customerDetails = new CustomerDetails();
@@ -59,28 +71,28 @@ public class PaymentServiceLayer {
 
         String formattedAmount = String.format("%.2f", subtotal);
 
-        if (users != null) {
-            customerDetails.setCustomerId("cashfree_".concat(users.getId().toString()));
-
-            customerDetails.setCustomerEmail(users.getEmail());
-
-            customerDetails.setCustomerPhone(users.getPhone());
-        } else {
-            userType = 1;
-        }
-
         CreateOrderRequest request = new CreateOrderRequest();
 
         request.setOrderCurrency("INR");
 
         request.setOrderAmount(Double.parseDouble(formattedAmount));
 
-        request.setCustomerDetails(customerDetails);
+        if (users != null) {
+            customerDetails.setCustomerId("cashfree_".concat(users.getId().toString()));
+
+            customerDetails.setCustomerEmail(users.getEmail());
+
+            customerDetails.setCustomerPhone(users.getPhone());
+
+            request.setCustomerDetails(customerDetails);
+        } else {
+            userType = 1;
+        }
 
         Orders orders = new Orders();
 
         try {
-            ApiResponse<OrderEntity> result = cashfree.PGCreateOrder(xApiVersion, request, null, null, null);
+            ApiResponse<OrderEntity> result = cashfree.PGCreateOrder(this.xApiVersion, request, null, null, null);
 
             orders.setCf_order_id(result.getData().getCfOrderId());
 
@@ -120,7 +132,45 @@ public class PaymentServiceLayer {
                 }
 
             } else {
+                String email = (String) requestBody.get("email");
 
+                Anonymus anonymus = anonymusRepository.getUserByEmail(email);
+
+                if(anonymus==null) {
+                    anonymus = new Anonymus();
+
+                    anonymus.setFirst_name((String) requestBody.get("firstName"));
+
+                    anonymus.setLast_name((String) requestBody.get("lastName"));
+
+                    anonymus.setEmail(email);
+
+                    anonymus.setAddress((String) requestBody.get("address"));
+
+                    anonymus.setAddress2((String) requestBody.get("address2"));
+
+                    anonymus.setState((BigInteger) requestBody.get("currentState"));
+
+                    anonymus.setZip((String) requestBody.get("zip"));
+
+                    anonymus.setPhone((String) requestBody.get("phone"));
+
+                    anonymusRepository.save(anonymus);
+
+                    anonymus = anonymusRepository.getUserByEmail(email);
+                }
+
+                orders.setTable_name("anonymus");
+
+                orders.setTable_id(anonymus.getId());
+
+                customerDetails.setCustomerId("cashfree_".concat(String.valueOf(anonymus.getId())));
+
+                customerDetails.setCustomerEmail(email);
+
+                customerDetails.setCustomerPhone(anonymus.getPhone());
+
+                request.setCustomerDetails(customerDetails);
             }
 
         } catch (Exception e) {
@@ -131,4 +181,61 @@ public class PaymentServiceLayer {
 
         return (orders);
     }
+
+    @Transactional
+    public boolean processPendingOrders()
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Users users = (Users) authentication.getPrincipal();
+
+        Cashfree.XClientId = "TEST10284318f45007527c473d39477181348201";
+
+        Cashfree.XClientSecret = "cfsk_ma_test_0c6869d946184130107fc0cb23acbabc_4e020c8f";
+
+        Cashfree cashfree = new Cashfree();
+
+        List<Orders> orders = orderRepository.fetchOrdersByStatusAndTableId(0);
+
+        try {
+            for(Orders order: orders){
+                System.out.println(order.getOrder_id());
+                ApiResponse<List<PaymentEntity>> result = cashfree.PGOrderFetchPayments(this.xApiVersion,order.getOrder_id(),null,null,null);
+
+                List<PaymentEntity> paymentEntity = result.getData();
+
+                if(!paymentEntity.isEmpty()){
+
+                    PaymentEntity payment = paymentEntity.get(0);
+
+                    if(payment.getPaymentStatus()!=null){
+                        String status = payment.getPaymentStatus().getValue();
+
+                        if(status.equals("SUCCESS")){
+                            orderRepository.updateCurrentStatus(1,order.getId());
+                        }
+                        else{
+                            orderRepository.updateCurrentStatus(-1,order.getId());
+                        }
+
+                        if(order.getTable_name().equals("users")){
+                            List<OrderItems> orderItems = orderItemRepository.getOrderItemsByOrderId(order.getId());
+
+                            for(OrderItems orderItem : orderItems){
+                                cartRepository.deleteById(orderItem.getOrder_id());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+
+            return(false);
+        }
+
+        return(true);
+    }
+
 }

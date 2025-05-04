@@ -41,6 +41,8 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
+//        System.out.println(token);
+
         if(token!=null){
             String hashedToken = jwtTokenServiceLayer.findToken(token);
 
@@ -48,8 +50,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
             UserDetails userDetails = myUserDetailsService.loadUserByUsername(jwtTokenServiceLayer.findEmailByToken(hashedToken));
 
+//            System.out.println(userDetails.getAuthorities());
+
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,null, userDetails.getAuthorities());
-            
+
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }
 

@@ -32,9 +32,32 @@ public class PaymentController {
         return (ResponseEntity.ok().body(orders.getPayment_session_id()));
     }
 
-    @GetMapping("/api/processPendingOrders")
+
+    // {
+//     "email":"test123@yopmail.com",
+//     "password":"5a5d3e1115b0bae8e32a610d20390f818a5ec81c90f6cf8c1a0be1b3c626b975"
+// }
+
+    // {
+//     "subtotal":"100"
+// }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/api/auth/processPendingOrders")
     public ResponseEntity<?> processPendingOrders() {
+
+        if(!paymentServiceLayer.processPendingOrders()){
+            return(ResponseEntity.badRequest().build());
+        }
+
         return (ResponseEntity.ok().build());
     }
+
+//    @PreAuthorize("hasRole('USER')")
+//    @GetMapping("/api/auth/hello")
+//    public  ResponseEntity<?> hello()
+//    {
+//        return(ResponseEntity.ok().build());
+//    }
 
 }
