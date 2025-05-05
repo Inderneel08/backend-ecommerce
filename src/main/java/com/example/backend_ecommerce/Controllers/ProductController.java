@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend_ecommerce.ServiceLayer.ProductServiceLayer;
@@ -18,17 +17,19 @@ public class ProductController {
     @Autowired
     private ProductServiceLayer productServiceLayer;
 
-    @GetMapping("/api/auth/products/{id}")
-    public ResponseEntity<?> getProductInfo(@PathVariable(value = "id", required = false) BigInteger id) {
+    @GetMapping("/api/auth/products")
+    public ResponseEntity<?> getAllProducts() {
         HashMap<String,Object> hashMap = new HashMap<>();
-        if (id == null) {
-            hashMap.put("products",productServiceLayer.findProducts());
+        hashMap.put("products", productServiceLayer.findProducts());
+        return ResponseEntity.ok().body(hashMap);
+    }
 
-            return (ResponseEntity.ok().body(hashMap));
-        }
-        else{
-            hashMap.put("productInfo",productServiceLayer.findProductsById(id));
-        }
+
+    @GetMapping("/api/auth/products/{id}")
+    public ResponseEntity<?> getProductInfo(@PathVariable(value = "id", required = true) BigInteger id) {
+        HashMap<String,Object> hashMap = new HashMap<>();
+
+        hashMap.put("productInfo",productServiceLayer.findProductsById(id));
 
         return (ResponseEntity.ok().body(hashMap));
     }
