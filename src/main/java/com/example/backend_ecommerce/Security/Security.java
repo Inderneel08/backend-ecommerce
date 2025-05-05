@@ -26,7 +26,7 @@ public class Security {
                 httpSecurity.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults())
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/auth/login", "/api/auth/register",
-                                                                "/api/getStates", "/api/auth/products/**",
+                                                                "/api/getStates","/api/auth/products/", "/api/auth/products/**",
                                                                  "/api/auth/getAll/categories","/img/**","/api/auth/products/category/**")
                                                 .permitAll()
                                                 .anyRequest().authenticated())
@@ -47,7 +47,7 @@ public class Security {
                         @Override
                         public void addCorsMappings(CorsRegistry registry) {
                                 registry.addMapping("/api/auth/**")
-                                        .allowedOrigins("http://localhost:3000")
+                                        .allowedOrigins("http://localhost:8080")
                                         .allowedMethods("GET","POST")
                                         .allowedHeaders("*")
                                         .allowCredentials(true);
