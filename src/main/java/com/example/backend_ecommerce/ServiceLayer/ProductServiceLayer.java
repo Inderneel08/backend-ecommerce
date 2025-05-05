@@ -2,14 +2,12 @@ package com.example.backend_ecommerce.ServiceLayer;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
 import com.example.backend_ecommerce.Models.ProductInfoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.example.backend_ecommerce.Models.Products;
+import com.example.backend_ecommerce.RepositoryLayer.ProductInfoRepository;
 import com.example.backend_ecommerce.RepositoryLayer.ProductRepository;
 
 @Service
@@ -17,6 +15,9 @@ public class ProductServiceLayer {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ProductInfoRepository productInfoRepository;
 
     public List<Products> findProducts() {
         List<Products> products = new ArrayList<>(productRepository.findAll());
@@ -41,7 +42,7 @@ public class ProductServiceLayer {
 
 
     public List<ProductInfoDTO> findProductsById(BigInteger id) {
-        List<ProductInfoDTO> products = productRepository.getProductInfo(id);
+        List<ProductInfoDTO> products = productInfoRepository.getProductInfo(id);
 
         for(ProductInfoDTO product : products){
             product.setImage("http://localhost:8080/".concat(product.getImage()));
