@@ -69,7 +69,7 @@ public class PaymentServiceLayer {
 
         CustomerDetails customerDetails = new CustomerDetails();
 
-        double subtotal = Double.parseDouble((String) requestBody.get("subtotal"));
+        double subtotal = Double.valueOf((String) requestBody.get("subtotal"));
 
         String formattedAmount = String.format("%.2f", subtotal);
 
@@ -80,6 +80,12 @@ public class PaymentServiceLayer {
         request.setOrderAmount(Double.parseDouble(formattedAmount));
 
         if (users != null) {
+            List<Orders> previousOrders = orderRepository.fetchOrdersByStatusAndTableId(users.getId(),0);
+
+            if(!previousOrders.isEmpty()){
+                return(null);
+            }
+
             customerDetails.setCustomerId("cashfree_".concat(users.getId().toString()));
 
             customerDetails.setCustomerEmail(users.getEmail());
@@ -184,59 +190,59 @@ public class PaymentServiceLayer {
         return (orders);
     }
 
-    @Transactional
-    public boolean processPendingOrders()
-    {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        Users users = (Users) authentication.getPrincipal();
-
-        Cashfree.XClientId = "TEST10284318f45007527c473d39477181348201";
-
-        Cashfree.XClientSecret = "cfsk_ma_test_0c6869d946184130107fc0cb23acbabc_4e020c8f";
-
-        Cashfree cashfree = new Cashfree();
-
-        List<Orders> orders = orderRepository.fetchOrdersByStatusAndTableId(users.getId(),0);
-
-        try {
-            for(Orders order: orders){
-                ApiResponse<List<PaymentEntity>> result = cashfree.PGOrderFetchPayments(this.xApiVersion,order.getOrder_id(),null,null,null);
-
-                List<PaymentEntity> paymentEntity = result.getData();
-
-                if(!paymentEntity.isEmpty()){
-
-                    PaymentEntity payment = paymentEntity.get(0);
-
-                    if(payment.getPaymentStatus()!=null){
-                        String status = payment.getPaymentStatus().getValue();
-
-                        if(status.equals("SUCCESS")){
-                            orderRepository.updateCurrentStatus(1,order.getId());
-                        }
-                        else{
-                            orderRepository.updateCurrentStatus(-1,order.getId());
-                        }
-
-                        if(order.getTable_name().equals("users")){
-                            List<OrderItems> orderItems = orderItemRepository.getOrderItemsByOrderId(order.getId());
-
-                            for(OrderItems orderItem : orderItems){
-                                cartRepository.deleteById(orderItem.getOrder_id());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception e){
-            e.printStackTrace();
-
-            return(false);
-        }
-
-        return(true);
-    }
+//    @Transactional
+//    public boolean processPendingOrders()
+//    {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        Users users = (Users) authentication.getPrincipal();
+//
+//        Cashfree.XClientId = "TEST10284318f45007527c473d39477181348201";
+//
+//        Cashfree.XClientSecret = "cfsk_ma_test_0c6869d946184130107fc0cb23acbabc_4e020c8f";
+//
+//        Cashfree cashfree = new Cashfree();
+//
+//        List<Orders> orders = orderRepository.fetchOrdersByStatusAndTableId(users.getId(),0);
+//
+//        try {
+//            for(Orders order: orders){
+//                ApiResponse<List<PaymentEntity>> result = cashfree.PGOrderFetchPayments(this.xApiVersion,order.getOrder_id(),null,null,null);
+//
+//                List<PaymentEntity> paymentEntity = result.getData();
+//
+//                if(!paymentEntity.isEmpty()){
+//
+//                    PaymentEntity payment = paymentEntity.get(0);
+//
+//                    if(payment.getPaymentStatus()!=null){
+//                        String status = payment.getPaymentStatus().getValue();
+//
+//                        if(status.equals("SUCCESS")){
+//                            orderRepository.updateCurrentStatus(1,order.getId());
+//                        }
+//                        else{
+//                            orderRepository.updateCurrentStatus(-1,order.getId());
+//                        }
+//
+//                        if(order.getTable_name().equals("users")){
+//                            List<OrderItems> orderItems = orderItemRepository.getOrderItemsByOrderId(order.getId());
+//
+//                            for(OrderItems orderItem : orderItems){
+//                                cartRepository.deleteById(orderItem.getCart_id());
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        catch (Exception e){
+//            e.printStackTrace();
+//
+//            return(false);
+//        }
+//
+//        return(true);
+//    }
 
 }

@@ -29,7 +29,11 @@ public class PaymentController {
             return (ResponseEntity.badRequest().body("Some error in creating the order"));
         }
 
-        return (ResponseEntity.ok().body(orders.getPayment_session_id()));
+        HashMap<String,Object> hashMap = new HashMap<>();
+
+        hashMap.put("data",orders.getPayment_session_id());
+
+        return (ResponseEntity.ok().body(hashMap));
     }
 
 
@@ -42,16 +46,16 @@ public class PaymentController {
 //     "subtotal":"100"
 // }
 
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping("/api/auth/processPendingOrders")
-    public ResponseEntity<?> processPendingOrders() {
-
-        if(!paymentServiceLayer.processPendingOrders()){
-            return(ResponseEntity.badRequest().build());
-        }
-
-        return (ResponseEntity.ok().build());
-    }
+//    @PreAuthorize("hasRole('USER')")
+//    @GetMapping("/api/auth/processPendingOrders")
+//    public ResponseEntity<?> processPendingOrders() {
+//
+//        if(!paymentServiceLayer.processPendingOrders()){
+//            return(ResponseEntity.badRequest().build());
+//        }
+//
+//        return (ResponseEntity.ok().build());
+//    }
 
 //    @PreAuthorize("hasRole('USER')")
 //    @GetMapping("/api/auth/hello")
