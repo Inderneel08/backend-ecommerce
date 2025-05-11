@@ -15,7 +15,7 @@ public class StatesController {
     @Autowired
     private StatesServiceLayer statesServiceLayer;
 
-    @GetMapping("/api/getStates")
+    @GetMapping("/api/auth/getStates")
     public List<States> getStates()
     {
         return(statesServiceLayer.getAllStates());

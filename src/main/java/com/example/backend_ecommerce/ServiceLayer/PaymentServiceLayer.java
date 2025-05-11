@@ -63,6 +63,8 @@ public class PaymentServiceLayer {
 
         Cashfree cashfree = new Cashfree();
 
+        System.out.println(requestBody.toString());
+
         Integer userType = 0;
 
         CustomerDetails customerDetails = new CustomerDetails();

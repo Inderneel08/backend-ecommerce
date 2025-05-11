@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface OrderRepository extends JpaRepository<Orders,BigInteger>{
 
-    @Query(value = "SELECT * FROM orders where orders.table_id = :userId orders.current_status = :current_status",nativeQuery = true)
+    @Query(value = "SELECT * FROM orders where orders.table_id = :userId and orders.current_status = :current_status",nativeQuery = true)
     public List<Orders> fetchOrdersByStatusAndTableId(@Param("userId") BigInteger userId ,@Param("current_status") Integer current_status);
 
     @Modifying

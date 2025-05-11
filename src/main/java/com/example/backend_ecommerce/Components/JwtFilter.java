@@ -41,20 +41,27 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-//        System.out.println(token);
-
         if(token!=null){
+
+            System.out.println("Token : ->".concat(token));
+
             String hashedToken = jwtTokenServiceLayer.findToken(token);
+
+            System.out.println("HashedToken : ->".concat(hashedToken));
 
             request.setAttribute("hashedToken", hashedToken);
 
-            UserDetails userDetails = myUserDetailsService.loadUserByUsername(jwtTokenServiceLayer.findEmailByToken(hashedToken));
+            String email = jwtTokenServiceLayer.findEmailByToken(hashedToken);
 
-//            System.out.println(userDetails.getAuthorities());
+            System.out.println(email);
 
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,null, userDetails.getAuthorities());
+            if(email!=null){
+                UserDetails userDetails = myUserDetailsService.loadUserByUsername(email);
 
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,null, userDetails.getAuthorities());
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
         }
 
         filterChain.doFilter(request, response);

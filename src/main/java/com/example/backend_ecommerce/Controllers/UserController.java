@@ -22,7 +22,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/api/auth/updatePassword")
     public ResponseEntity<?> updatePassword(@RequestBody Map<String,Object> requestBody){
-        if(!myUserDetailsService.updatePassword((String) requestBody.get("password"))){
+        if(!myUserDetailsService.updatePassword((String) requestBody.get("current_password"),(String) requestBody.get("new_password"))){
             return(ResponseEntity.badRequest().body("Password updation failed!"));
         }
 

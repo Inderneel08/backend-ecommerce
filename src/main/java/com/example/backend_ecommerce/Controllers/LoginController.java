@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,9 +32,19 @@ public class LoginController {
     public ResponseEntity<?> login(@RequestBody Map<String, Object> request, HttpServletResponse response) {
         Users users = (Users) myUserDetailsService.loadUserByUsername((String) request.get("email"));
 
+        System.out.println(123456);
+
+        System.out.println(request.toString());
+
         if (users == null) {
             return (ResponseEntity.badRequest().body("Email Id or Password incorrect!"));
         }
+
+        if(!users.getPassword().equals((String) request.get("password"))){
+            return (ResponseEntity.badRequest().body("Email Id or Password incorrect!"));
+        }
+
+        System.out.println(users);
 
         String token = jwtTokenServiceLayer.createToken(users.getId());
 
@@ -47,7 +58,7 @@ public class LoginController {
 
         response.addCookie(cookie);
 
-        return (ResponseEntity.ok().build());
+        return (ResponseEntity.ok().body("Login Successfull!"));
     }
 
     @PreAuthorize("hasRole('USER')")

@@ -80,4 +80,18 @@ public class CartController {
         return (ResponseEntity.ok().build());
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/api/auth/addToCartViaProductId")
+    public ResponseEntity<?> addToCartViaProductId(@RequestBody Map<String,Object> requestBody)
+    {
+        try {
+            cartServiceLayer.addToCartViaProductId(requestBody);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return(ResponseEntity.ok().build());
+    }
+
+
 }

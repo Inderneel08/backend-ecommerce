@@ -96,6 +96,10 @@ public class JwtTokenServiceLayer {
     {
         TokenTable tokenTable = tokenRepository.findByTokenValue(hashedToken);
 
+        if(tokenTable==null){
+            return(null);
+        }
+
         Optional<Users> users = userRepository.findById(tokenTable.getUser_id());
 
         return(users.get().getEmail());

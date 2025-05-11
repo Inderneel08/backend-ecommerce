@@ -49,11 +49,15 @@ public class MyUserDetailsService implements UserDetailsService{
     }
 
     @Transactional
-    public boolean updatePassword(String password)
+    public boolean updatePassword(String current_password,String password)
     {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         Users users = (Users) authentication.getPrincipal();
+
+        if(!users.getPassword().equals(current_password)){
+            return(false);
+        }
 
         try {
             userRepository.savePassword(users.getId(), password);
