@@ -51,6 +51,7 @@ public class PaymentServiceLayer {
 
     private final String xApiVersion = "2023-08-01";
 
+    @Transactional
     public Orders createOrder(@RequestBody Map<String, Object> requestBody) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -63,7 +64,7 @@ public class PaymentServiceLayer {
 
         Cashfree cashfree = new Cashfree();
 
-        System.out.println(requestBody.toString());
+//        System.out.println(requestBody.toString());
 
         Integer userType = 0;
 
@@ -108,7 +109,7 @@ public class PaymentServiceLayer {
 
             orders.setPayment_session_id(result.getData().getPaymentSessionId());
 
-            orders.setCurrent_status(0);
+            orders.setCurrent_status(-2);
 
             orders.setOrder_id(result.getData().getOrderId());
 
@@ -120,9 +121,10 @@ public class PaymentServiceLayer {
                 orders.setTable_id(users.getId());
             }
 
-            orderRepository.save(orders);
-
             if (userType == 0) {
+
+                orderRepository.save(orders);
+
                 List<CartDTO> cartDTOs = cartServiceLayer.getCartItems();
 
                 for (CartDTO cartDTO : cartDTOs) {
@@ -172,6 +174,8 @@ public class PaymentServiceLayer {
 
                 orders.setTable_id(anonymus.getId());
 
+                orderRepository.save(orders);
+
                 customerDetails.setCustomerId("cashfree_".concat(String.valueOf(anonymus.getId())));
 
                 customerDetails.setCustomerEmail(email);
@@ -189,6 +193,21 @@ public class PaymentServiceLayer {
 
         return (orders);
     }
+
+
+    public boolean updateViaPaymentSessionId(String paymentSessionId)
+    {
+        try{
+            orderRepository.updateCurrentStatusViaSessionId(1,paymentSessionId);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return(false);
+        }
+
+        return(true);
+    }
+
 
 //    @Transactional
 //    public boolean processPendingOrders()

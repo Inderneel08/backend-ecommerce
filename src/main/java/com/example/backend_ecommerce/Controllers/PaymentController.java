@@ -36,6 +36,18 @@ public class PaymentController {
         return (ResponseEntity.ok().body(hashMap));
     }
 
+    @PostMapping("/api/auth/processViaPaymentSessionId")
+    public ResponseEntity<?> changeOrdersViaPaymentSessionId(@RequestBody Map<String,Object> requestBody)
+    {
+        String paymentSessionId = (String) requestBody.get("paymentSessionId");
+
+        if(!paymentServiceLayer.updateViaPaymentSessionId(paymentSessionId)){
+            return(ResponseEntity.badRequest().body("Some error happened!"));
+        }
+
+        return(ResponseEntity.ok().build());
+    }
+
 
     // {
 //     "email":"test123@yopmail.com",
