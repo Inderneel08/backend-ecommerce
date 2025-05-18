@@ -6,10 +6,7 @@ import com.cashfree.model.PaymentEntity;
 import com.example.backend_ecommerce.Models.ContactUs;
 import com.example.backend_ecommerce.Models.OrderItems;
 import com.example.backend_ecommerce.Models.Orders;
-import com.example.backend_ecommerce.RepositoryLayer.CartRepository;
-import com.example.backend_ecommerce.RepositoryLayer.ContactUsRepository;
-import com.example.backend_ecommerce.RepositoryLayer.OrderItemRepository;
-import com.example.backend_ecommerce.RepositoryLayer.OrderRepository;
+import com.example.backend_ecommerce.RepositoryLayer.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -95,7 +92,7 @@ public class JobWorker {
         return ;
     }
 
-    public static String sha256(String input) {
+    public String sha256(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] encodedHash = digest.digest(input.trim().getBytes(StandardCharsets.UTF_8));
@@ -105,7 +102,7 @@ public class JobWorker {
         }
     }
 
-    private static String bytesToHex(byte[] hash) {
+    private String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (byte b : hash) {
             hexString.append(String.format("%02x", b));
@@ -140,6 +137,17 @@ public class JobWorker {
         }
 
         return ;
+    }
+
+    @Transactional
+    @Scheduled(fixedDelay = 15000)
+    public void loadCountTable()
+    {
+        try{
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

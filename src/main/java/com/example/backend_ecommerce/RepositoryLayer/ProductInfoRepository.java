@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.backend_ecommerce.Models.Products;
 import org.springframework.stereotype.Repository;
 
 import com.example.backend_ecommerce.Models.ProductInfoDTO;
@@ -48,6 +49,47 @@ public class ProductInfoRepository {
         }
 
         return(productInfoDTOs);
+    }
+
+    public List<Products> getProducts()
+    {
+        String sql = "select products.* from count_table inner JOIN products on count_table.product_id = products.id";
+
+        Query query = entityManager.createNativeQuery(sql, Tuple.class);
+
+        List<Tuple> results = query.getResultList();
+
+        List<Products> products = new ArrayList<>();
+
+        if(!results.isEmpty()){
+            for(Tuple tuple : results){
+                BigInteger id = BigInteger.valueOf(tuple.get(0, Long.class));
+
+                String title = tuple.get(1, String.class);
+
+                BigDecimal price = (BigDecimal) tuple.get(2);
+
+                String description = tuple.get(3, String.class);
+
+                Integer category = (Integer) tuple.get(4);
+
+                String image = tuple.get(5, String.class);
+
+                BigInteger rate_id = BigInteger.valueOf(tuple.get(6, Long.class));
+
+                products1.setId(id);
+
+                products1.setTitle(title);
+
+                products1.setPrice(price);
+
+                products1.setDescription(description);
+
+                products1.setCategory(category);
+            }
+        }
+
+        return(products);
     }
     
 }
