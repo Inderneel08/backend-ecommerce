@@ -195,10 +195,11 @@ public class PaymentServiceLayer {
     }
 
 
+    @Transactional
     public boolean updateViaPaymentSessionId(String paymentSessionId)
     {
         try{
-            orderRepository.updateCurrentStatusViaSessionId(1,paymentSessionId);
+            orderRepository.updateCurrentStatusViaSessionId(0,paymentSessionId);
         } catch (Exception e) {
             e.printStackTrace();
 

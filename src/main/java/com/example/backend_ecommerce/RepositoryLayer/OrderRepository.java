@@ -22,6 +22,7 @@ public interface OrderRepository extends JpaRepository<Orders,BigInteger>{
     @Query("UPDATE Orders O set O.current_status = :status where O.id = :order_id")
     public void updateCurrentStatus(@Param("status") Integer status,@Param("order_id") BigInteger order_id);
 
+    @Modifying
     @Query(value = "UPDATE orders set orders.current_status = :status where orders.payment_session_id = :payment_session_id",nativeQuery = true)
     public void updateCurrentStatusViaSessionId(@Param("status") Integer status,@Param("payment_session_id") String payment_session_id);
 

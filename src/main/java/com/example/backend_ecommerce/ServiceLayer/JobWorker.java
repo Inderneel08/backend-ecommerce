@@ -3,9 +3,11 @@ package com.example.backend_ecommerce.ServiceLayer;
 import com.cashfree.ApiResponse;
 import com.cashfree.Cashfree;
 import com.cashfree.model.PaymentEntity;
+import com.example.backend_ecommerce.Models.ContactUs;
 import com.example.backend_ecommerce.Models.OrderItems;
 import com.example.backend_ecommerce.Models.Orders;
 import com.example.backend_ecommerce.RepositoryLayer.CartRepository;
+import com.example.backend_ecommerce.RepositoryLayer.ContactUsRepository;
 import com.example.backend_ecommerce.RepositoryLayer.OrderItemRepository;
 import com.example.backend_ecommerce.RepositoryLayer.OrderRepository;
 import jakarta.transaction.Transactional;
@@ -13,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @Service
@@ -26,6 +31,12 @@ public class JobWorker {
 
     @Autowired
     private OrderItemRepository orderItemRepository;
+
+    @Autowired
+    private ContactUsRepository contactUsRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     private final String xApiVersion = "2023-08-01";
 
@@ -79,6 +90,53 @@ public class JobWorker {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        return ;
+    }
+
+    public static String sha256(String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedHash = digest.digest(input.trim().getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(encodedHash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error generating SHA-256 hash", e);
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            hexString.append(String.format("%02x", b));
+        }
+        return hexString.toString();
+    }
+
+
+    public String generatedQueryNo(ContactUs contactUs)
+    {
+        return(contactUs.getId() + "_" + sha256(contactUs.getName()) + "_" + sha256(contactUs.getEmail()) + "_" + sha256(contactUs.getMessage()));
+    }
+
+    @Transactional
+    @Scheduled(fixedDelay = 10000)
+    public void processContactUsEmails()
+    {
+        try{
+            List<ContactUs> contactUs = contactUsRepository.getContactUsEmailStatus(0);
+
+            for (ContactUs contactUs1 : contactUs){
+                contactUs1.setGenerated_query_no(generatedQueryNo(contactUs1));
+
+                contactUs1.setEmail_status(1);
+
+                contactUsRepository.save(contactUs1);
+
+                emailService.sendMail(contactUs1.getEmail(),"Query generated with query no as ".concat(contactUs1.getGenerated_query_no()),"Your query with query no as ".concat(contactUs1.getGenerated_query_no()).concat(" has been generated.If a solution has been found our team will contact you."));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return ;

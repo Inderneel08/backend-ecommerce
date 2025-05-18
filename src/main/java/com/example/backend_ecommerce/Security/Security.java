@@ -27,7 +27,7 @@ public class Security {
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/auth/login", "/api/auth/register",
                                                                 "/api/auth/getStates","/api/auth/products", "/api/auth/products/**",
-                                                                 "/api/auth/getAll/categories","/img/**","/api/auth/products/category/**")
+                                                                 "/api/auth/getAll/categories","/img/**","/api/auth/products/category/**","/api/auth/createQuery")
                                                 .permitAll()
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session

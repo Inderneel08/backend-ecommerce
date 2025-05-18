@@ -36,6 +36,7 @@ public class PaymentController {
         return (ResponseEntity.ok().body(hashMap));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/api/auth/processViaPaymentSessionId")
     public ResponseEntity<?> changeOrdersViaPaymentSessionId(@RequestBody Map<String,Object> requestBody)
     {
