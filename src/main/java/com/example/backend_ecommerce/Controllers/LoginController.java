@@ -5,7 +5,10 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,7 +64,7 @@ public class LoginController {
         return (ResponseEntity.ok().body("Login Successfull!"));
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/api/auth/logout")
     public ResponseEntity<?> logout(HttpServletRequest request,HttpServletResponse response)
     {
@@ -77,13 +80,30 @@ public class LoginController {
         return(ResponseEntity.ok().body("Logout successfull!"));
     }
 
-    @PreAuthorize("hasRole('USER')")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping("/api/auth/check")
     public ResponseEntity<?> checkUser()
     {
         HashMap<String,Object> hashMap = new HashMap<>();
 
         hashMap.put("message","You are authenticated");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Users users = null;
+
+        if(!authentication.getPrincipal().equals("anonymousUser")){
+            users=(Users) authentication.getPrincipal();
+        }
+
+        if(users!=null){
+            hashMap.put("email",users.getEmail());
+
+            hashMap.put("role",users.getRole());
+        }
+        else{
+            return(ResponseEntity.badRequest().build());
+        }
 
         return(ResponseEntity.ok().body(hashMap));
     }

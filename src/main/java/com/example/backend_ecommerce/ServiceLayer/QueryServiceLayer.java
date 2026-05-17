@@ -32,6 +32,8 @@ public class QueryServiceLayer {
 
         contactUs.setEmail_status(0);
 
+        contactUs.setStatus_request(0);
+
         try{
             contactUsRepository.save(contactUs);
         } catch (Exception e) {

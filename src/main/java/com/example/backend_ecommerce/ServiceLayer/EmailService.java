@@ -29,4 +29,24 @@ public class EmailService {
 
         javaMailSender.send(simpleMailMessage);
     }
+
+    public void sendMail(String toEmail,String subject,String body,Integer count)
+    {
+        System.out.println("Sending "+count + "st email");
+
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+
+        simpleMailMessage.setFrom(senderEmail);
+
+        simpleMailMessage.setTo(toEmail);
+
+        simpleMailMessage.setSubject(subject);
+
+        simpleMailMessage.setText(body);
+
+        javaMailSender.send(simpleMailMessage);
+
+        System.out.println(count + "st email"+" send");
+    }
+
 }

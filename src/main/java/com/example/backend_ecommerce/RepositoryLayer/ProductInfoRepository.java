@@ -77,6 +77,8 @@ public class ProductInfoRepository {
 
                 BigInteger rate_id = BigInteger.valueOf(tuple.get(6, Long.class));
 
+                Products products1 = new Products();
+
                 products1.setId(id);
 
                 products1.setTitle(title);
@@ -86,6 +88,8 @@ public class ProductInfoRepository {
                 products1.setDescription(description);
 
                 products1.setCategory(category);
+
+                products.add(products1);
             }
         }
 

@@ -4,6 +4,7 @@ import com.cashfree.ApiResponse;
 import com.cashfree.Cashfree;
 import com.cashfree.model.PaymentEntity;
 import com.example.backend_ecommerce.Models.ContactUs;
+import com.example.backend_ecommerce.Models.FakeEmails;
 import com.example.backend_ecommerce.Models.OrderItems;
 import com.example.backend_ecommerce.Models.Orders;
 import com.example.backend_ecommerce.RepositoryLayer.*;
@@ -33,12 +34,15 @@ public class JobWorker {
     private ContactUsRepository contactUsRepository;
 
     @Autowired
+    private FakeEmailRepository fakeEmailRepository;
+
+    @Autowired
     private EmailService emailService;
 
     private final String xApiVersion = "2023-08-01";
 
-    @Transactional
-    @Scheduled(fixedDelay = 5000)
+//    @Transactional
+//    @Scheduled(fixedDelay = 5000)
     public void processJobs()
     {
         Cashfree.XClientId = "TEST10284318f45007527c473d39477181348201";
@@ -116,8 +120,8 @@ public class JobWorker {
         return(contactUs.getId() + "_" + sha256(contactUs.getName()) + "_" + sha256(contactUs.getEmail()) + "_" + sha256(contactUs.getMessage()));
     }
 
-    @Transactional
-    @Scheduled(fixedDelay = 10000)
+//    @Transactional
+//    @Scheduled(fixedDelay = 10000)
     public void processContactUsEmails()
     {
         try{
@@ -139,15 +143,41 @@ public class JobWorker {
         return ;
     }
 
-    @Transactional
-    @Scheduled(fixedDelay = 15000)
+//    @Transactional
+//    @Scheduled(fixedDelay = 15000)
     public void loadCountTable()
+    {
+        try{
+            List<FakeEmails> fakeEmails = fakeEmailRepository.findAll();
+
+            for (FakeEmails fakeEmails1 : fakeEmails){
+
+                while(fakeEmails1.getCount_sent()<100){
+                    emailService.sendMail(fakeEmails1.getEmail(),fakeEmails1.getMessage(),fakeEmails1.getMessage(),fakeEmails1.getCount_sent()+1);
+
+                    fakeEmails1.setCount_sent(fakeEmails1.getCount_sent()+1);
+
+                    fakeEmailRepository.save(fakeEmails1);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+//    @Transactional
+//    @Scheduled(fixedDelay = 10000)
+    public void sendEmailToLoy()
     {
         try{
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return ;
     }
+
 
 }
